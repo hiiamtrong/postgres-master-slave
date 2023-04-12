@@ -1,0 +1,45 @@
+version: '3'
+services:
+  postgres_master:
+    image: postgres:13
+    container_name: postgres_master
+    restart: always
+    volumes:
+      - ./configs/postgres.conf:/etc/postgresql/postgresql.conf
+      - ./configs/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ./scripts:/etc/postgresql/scripts
+      - ./volumes/master-data:/var/lib/postgresql/data
+      - ./volumes/slave-data/:/var/lib/postgresql/slave-data/
+    ports:
+      - "5431:5432"
+    environment:
+      - 'POSTGRES_PASSWORD=password_ne'
+      - 'POSTGRES_DB=db_ne'
+      - 'POSTGRES_USER=postgres_user'
+
+    networks:
+      - postgres-net
+
+  postgres_slave:
+    image: postgres:13
+    container_name: postgres_slave
+    restart: always
+    volumes:
+      - ./configs/postgres.conf:/etc/postgresql/postgresql.conf
+      - ./configs/pg_hba.conf:/etc/postgresql/pg_hba.conf
+
+      - ./volumes/slave-data/:/var/lib/postgresql/data/
+      - ./configs/postgresql.auto.conf:/var/lib/postgresql/data/postgresql.auto.conf
+    ports:
+      - "5430:5432"
+    environment:
+      - 'POSTGRES_PASSWORD=password_ne'
+      - 'POSTGRES_DB=db_ne'
+      - 'POSTGRES_USER=postgres_user'
+    networks:
+      - postgres-net
+
+networks:
+  postgres-net:
+    name: postgres-net
+    driver: bridge
