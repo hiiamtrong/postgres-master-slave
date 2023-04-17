@@ -1,1 +1,0 @@
-cp /etc/postgresql/init-
